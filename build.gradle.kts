@@ -49,6 +49,30 @@ publishing {
     publications {
         create<MavenPublication>("kexif") {
             from(components["java"])
+            pom {
+                name.set("kexif")
+                description.set("An image metadata reader/writer in Kotlin")
+                url.set("https://github.com/quincy/kexif")
+
+                licenses {
+                    license {
+                        name.set("MIT License")
+                        url.set("https://www.opensource.org/licenses/mit-license.php")
+                        distribution.set("repo")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/quincy/kexif.git")
+                    developerConnection.set("scm:git:ssh://github.com/quincy/kexif.git")
+                    url.set("https://github.com/quincy/kexif/")
+                }
+
+                issueManagement {
+                    system.set("GitHub Issues")
+                    url.set("https://github.com/quincy/kexif/issues")
+                }
+            }
         }
     }
 }
