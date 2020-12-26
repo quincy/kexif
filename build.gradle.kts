@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     kotlin("jvm") version "1.4.20"
     `maven-publish`
+    id("com.jfrog.bintray") version "1.8.5"
 }
 
 repositories {
@@ -74,5 +75,17 @@ publishing {
                 }
             }
         }
+    }
+}
+
+bintray {
+    user = "bintray_user"
+    key = "bintray_api_key"
+    pkg.apply {
+        repo = "kexif-jvm"
+        name = "kexif"
+        description = "Image metadata reader/writer in Kotlin"
+        setLicenses("MIT")
+        vcsUrl = "https://github.com/quincy/kexif.git"
     }
 }

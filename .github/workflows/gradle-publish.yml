@@ -9,6 +9,7 @@ on:
 jobs:
   publish-release:
     runs-on: ubuntu-latest
+    environment: Build
 
     steps:
       - name: Checkout latest code
@@ -38,3 +39,4 @@ jobs:
           echo "New version: ${NEW_VERSION}"
           echo "Github username: ${GITHUB_ACTOR}"
           ./gradlew -Pversion=${NEW_VERSION} publish
+          ./gradlew -PbintrayUser=${{ secrets.BINTRAY_USER }} -Pversion=${NEW_VERSION} -PbintrayKey=${{ secrets.BINTRAY_API_KEY }} bintrayUpload
