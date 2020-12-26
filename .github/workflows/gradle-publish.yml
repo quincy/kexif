@@ -28,7 +28,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Publish artifact to GitHub Packages
+      - name: Publish artifact to Maven Repositories
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
