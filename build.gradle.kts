@@ -81,6 +81,8 @@ publishing {
 bintray {
     user = project.findProperty("bintrayUser").toString()
     key = project.findProperty("bintrayKey").toString()
+    setConfigurations("archives")
+    setPublications("kexif")
     pkg.apply {
         repo = "kexif-jvm"
         name = "kexif"
