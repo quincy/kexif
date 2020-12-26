@@ -21,6 +21,10 @@ sealed class KexifTag {
                 .mapNotNull { it.objectInstance }
         }
     }
+
+    override fun toString(): String {
+        return commonsTag.name
+    }
 }
 
 sealed class StringTag : KexifTag()

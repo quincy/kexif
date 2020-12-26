@@ -94,6 +94,7 @@ internal class JpegMetadataReadWriter(private val filepath: String) : Metadata, 
     override fun getLong(tag: LongTag): Long? {
         return when (val v = get(tag)) {
             null -> null
+            is Int -> v.toLong()
             is Long -> v
             else -> throw UnsupportedOperationException("Cannot convert value [$v] to Long.")
         }
