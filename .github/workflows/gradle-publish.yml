@@ -1,4 +1,4 @@
-# This workflow will build a package using Gradle and then publish it to GitHub packages when a release is created
+# This workflow will build a package using Gradle and then publish it to GitHub packages and bintray when a release is created
 
 name: Publish release
 
@@ -9,7 +9,7 @@ on:
 jobs:
   publish-release:
     runs-on: ubuntu-latest
-    environment: Build
+    environment: Release
 
     steps:
       - name: Checkout latest code
