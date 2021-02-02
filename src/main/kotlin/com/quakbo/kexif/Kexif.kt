@@ -27,12 +27,12 @@ interface MetadataReader : Closeable {
     fun getRationalArray(tag: RationalArrayTag): Array<Rational>?
     fun getShort(tag: ShortTag): Short?
     fun getShortArray(tag: ShortArrayTag): ShortArray?
-    fun getString(tag: StringTag): String?
+    fun getString(tag: KexifTag): String?
     fun getStringArray(tag: StringArrayTag): Array<String>?
     // fun getUndefined
     // fun getUndefineds
-    // fun getGPS Text
-    // fun getUnknown
+    fun getGPSText(tag: GPSTextTag): String?
+    fun getUnknown(tag: UnknownTag): Any?
     // fun getUnknowns
     // fun getInfo Directory
     // fun getInfo XPS String

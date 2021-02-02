@@ -11,18 +11,36 @@ fun <T, U> isEmptyMap(): Matcher<Map<T, U>> = object : Matcher<Map<T, U>> {
     }
 }
 
-fun <T, U> hasElement(key: T, value: U): Matcher<Map<T, U>> = object : Matcher<Map<T, U>> {
-    override val description: String = "a map with mapping $key -> $value"
+fun <T, U> hasElement(key: T, matcher: Matcher<U>): Matcher<Map<T, U>> = object : Matcher<Map<T, U>> {
+    override val description: String = "has $key -> ${matcher.description}"
 
     override fun invoke(actual: Map<T, U>): MatchResult {
         return when (val actualValue = actual[key]) {
-            is ByteArray -> if (actualValue.contentEquals(value as ByteArray)) MatchResult.Match else MatchResult.Mismatch("mapping ($key -> $value) was not present.  map=$actual")
-            is DoubleArray -> if (actualValue.contentEquals(value as DoubleArray)) MatchResult.Match else MatchResult.Mismatch("mapping ($key -> $value) was not present.  map=$actual")
-            is FloatArray -> if (actualValue.contentEquals(value as FloatArray)) MatchResult.Match else MatchResult.Mismatch("mapping ($key -> $value) was not present.  map=$actual")
-            is IntArray -> if (actualValue.contentEquals(value as IntArray)) MatchResult.Match else MatchResult.Mismatch("mapping ($key -> $value) was not present.  map=$actual")
-            is LongArray -> if (actualValue.contentEquals(value as LongArray)) MatchResult.Match else MatchResult.Mismatch("mapping ($key -> $value) was not present.  map=$actual")
-            is ShortArray -> if (actualValue.contentEquals(value as ShortArray)) MatchResult.Match else MatchResult.Mismatch("mapping ($key -> $value) was not present.  map=$actual")
-            else -> if (actualValue == value) MatchResult.Match else MatchResult.Mismatch("mapping ($key -> $value) was not present.  map=$actual")
+            is ByteArray -> matcher.invoke(actualValue)
+            is DoubleArray -> matcher.invoke(actualValue)
+            is FloatArray -> matcher.invoke(actualValue)
+            is IntArray -> matcher.invoke(actualValue)
+            is LongArray -> matcher.invoke(actualValue)
+            is ShortArray -> matcher.invoke(actualValue)
+            else -> matcher.invoke(actualValue as U)
         }
+    }
+}
+
+// TODO put these in a better spot
+fun contentsEqual(expected: ByteArray): Matcher<ByteArray?> = object : Matcher<ByteArray?> {
+    override val description: String = "has same contents as ${expected.joinToString()}"
+
+    override fun invoke(actual: ByteArray?): MatchResult {
+        return if (actual.contentEquals(expected)) MatchResult.Match else MatchResult.Mismatch("was ${actual?.joinToString() ?: "null"}")
+    }
+}
+
+// TODO put these in a better spot
+fun <T> contentsEqual(expected: Array<T>): Matcher<Array<T>?> = object : Matcher<Array<T>?> {
+    override val description: String = "has same contents as ${expected.joinToString()}"
+
+    override fun invoke(actual: Array<T>?): MatchResult {
+        return if (actual.contentEquals(expected)) MatchResult.Match else MatchResult.Mismatch("was ${actual?.joinToString() ?: "null"}")
     }
 }

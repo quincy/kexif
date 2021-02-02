@@ -32,7 +32,38 @@ internal class JpegMetadataReadWriter(private val filepath: String) : Metadata, 
     private val metadata = rawMetadata as? JpegImageMetadata
 
     fun get(key: KexifTag): Any? {
-        return metadata?.exif?.getFieldValue(key.commonsTag) ?: updates[key]
+        val value = metadata?.exif?.getFieldValue(key.commonsTag) ?: updates[key] ?: return null
+
+        return try {
+            when (key) {
+                is ByteArrayTag -> value as ByteArray
+                is ByteTag -> value as Byte
+                is DoubleArrayTag -> value as DoubleArray
+                is DoubleTag -> value as Double
+                is FloatArrayTag -> value as FloatArray
+                is FloatTag -> value as Float
+                is GPSTextTag -> value as String
+                is LongArrayTag -> value as LongArray
+                is LongTag -> (value as Number).toLong()
+                is RationalArrayTag -> when (value) {
+                    is RationalNumber -> value.toRational()
+                    is Array<*> -> value.map { (it as RationalNumber).toRational() }
+                    else -> throw IllegalStateException("Cannot convert unknown type to RationalArray value=$value")
+                }
+                is RationalTag -> (value as RationalNumber).toRational()
+                is ShortArrayTag -> value as ShortArray
+                is ShortTag -> (value as Number).toShort()
+                is StringTag -> value as String
+                is StringArrayTag -> value as Array<String>
+                is TimestampTag -> LocalDateTime.parse(value as String, EXIF_DATE_TIME_FORMAT)
+                is UnknownTag -> value
+            }
+        } catch (e: ClassCastException) {
+            throw KexifReadException(
+                "Could not cast value=$value for key=$key (${key::class.supertypes}) to any known type.  ${value::class.javaObjectType}",
+                e
+            )
+        }
     }
 
     override fun getByte(tag: ByteTag): Byte? {
@@ -83,9 +114,19 @@ internal class JpegMetadataReadWriter(private val filepath: String) : Metadata, 
         }
     }
 
+    override fun getGPSText(tag: GPSTextTag): String? {
+        return when (val v = get(tag)) {
+            null -> null
+            is CharSequence -> v.filterNot { it == '\u0000' }.toString()
+            is String -> v
+            else -> v.toString()
+        }
+    }
+
     override fun getLocalDateTime(tag: TimestampTag): LocalDateTime? {
         return when (val v = get(tag)) {
             null -> null
+            is LocalDateTime -> v
             is String -> LocalDateTime.parse(v, EXIF_DATE_TIME_FORMAT)
             else -> throw UnsupportedOperationException("Cannot convert value [$v] to LocalDateTime.")
         }
@@ -124,11 +165,12 @@ internal class JpegMetadataReadWriter(private val filepath: String) : Metadata, 
         }
     }
 
-    override fun getString(tag: StringTag): String? {
+    override fun getString(tag: KexifTag): String? {
         return when (val v = get(tag)) {
             null -> null
-            is String -> v
+            is LocalDateTime -> v.format(EXIF_DATE_TIME_FORMAT)
             is RationalNumber -> v.toRational().toString()
+            is String -> v
             else -> v.toString()
         }
     }
@@ -144,6 +186,7 @@ internal class JpegMetadataReadWriter(private val filepath: String) : Metadata, 
     override fun getRational(tag: RationalTag): Rational? {
         return when (val v = get(tag)) {
             null -> null
+            is Rational -> v
             is RationalNumber -> v.toRational()
             is String -> v.toRational()
             else -> throw UnsupportedOperationException("Cannot convert value [$v] to Rational.")
@@ -153,9 +196,14 @@ internal class JpegMetadataReadWriter(private val filepath: String) : Metadata, 
     override fun getRationalArray(tag: RationalArrayTag): Array<Rational>? {
         return when (val v = get(tag)) {
             null -> null
+            is Rational -> arrayOf(v)
             is Array<*> -> v.map { it as RationalNumber }.map { it.toRational() }.toTypedArray()
             else -> throw UnsupportedOperationException("Cannot convert value [$v] to Array<String>.")
         }
+    }
+
+    override fun getUnknown(tag: UnknownTag): Any? {
+        return get(tag)
     }
 
     override fun set(key: KexifTag, value: Any) {

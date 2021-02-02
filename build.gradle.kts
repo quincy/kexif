@@ -16,7 +16,7 @@ dependencies {
 
     implementation("org.apache.commons:commons-imaging:1.0-alpha2")
 
-    val junitJupiterVersion = "5.6.0"
+    val junitJupiterVersion = "5.7.0"
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
