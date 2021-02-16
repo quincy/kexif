@@ -14,6 +14,7 @@ fun <T, U> isEmptyMap(): Matcher<Map<T, U>> = object : Matcher<Map<T, U>> {
 fun <T, U> hasElement(key: T, matcher: Matcher<U>): Matcher<Map<T, U>> = object : Matcher<Map<T, U>> {
     override val description: String = "has $key -> ${matcher.description}"
 
+    @Suppress("UNCHECKED_CAST")
     override fun invoke(actual: Map<T, U>): MatchResult {
         return when (val actualValue = actual[key]) {
             is ByteArray -> matcher.invoke(actualValue)
